@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+  fullName       String
+  email          String   @unique
+  passwordHash   String
+  age            Int?
+  heightCm       Float?
+  weightKg       Float?
+  goal           String?
+  preferences    String?
+  allergies      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  meals          Meal[]
+  waterLogs      WaterLog[]
+  weightLogs     WeightLog[]
+  nutritionStats NutritionStat[]
+}
+
+model Meal {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  mealType  String
+  title     String
+  image     String?
+  proteinG  Int
+  carbsG    Int
+  fatG      Int
+  calories  Int
+  tags      String?
+  eatenAt   DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, eatenAt])
+}
+
+model NutritionStat {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  date          DateTime
+  caloriesGoal  Int      @default(2000)
+  caloriesTaken Int      @default(0)
+  proteinGoalG  Int      @default(150)
+  proteinTakenG Int      @default(0)
+  carbsGoalG    Int      @default(225)
+  carbsTakenG   Int      @default(0)
+  fatsGoalG     Int      @default(67)
+  fatsTakenG    Int      @default(0)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model WaterLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amountMl  Int      @default(250)
+  loggedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}
+
+model WeightLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  weightKg  Float
+  loggedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}

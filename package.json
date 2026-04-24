@@ -1,17 +1,25 @@
 {
-  "name": "dietora",
+  "name": "nutriplan",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix Nutriplan-main run dev",
+    "dev:landing": "npm --prefix Nutriplanlandingpage-main run dev",
+    "dev:dashboard": "npm --prefix Nutriplan-main run dev",
+    "dev:all": "powershell -ExecutionPolicy Bypass -File start-all.ps1",
     "build": "next build",
+    "build:frontend": "npm --prefix Nutriplan-main run build",
+    "build:landing": "npm --prefix Nutriplanlandingpage-main run build",
+    "build:dashboard": "npm --prefix Nutriplan-main run build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "next": "16.2.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
