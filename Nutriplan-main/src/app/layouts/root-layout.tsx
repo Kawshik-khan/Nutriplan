@@ -41,63 +41,61 @@ function SidebarContent({
   isLoggingOut: boolean;
 }) {
   return (
-    <div className="flex flex-col h-full glass border-r-0 shadow-none">
+    <div className="flex flex-col h-full bg-white">
       {/* Logo */}
-      <div className="p-8">
-        <Link to="/dashboard" className="flex items-center gap-3 group">
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 duration-300">
-            <Salad className="w-7 h-7 text-white" />
+      <div className="p-6 border-b border-gray-200">
+        <Link to="/dashboard" className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+            <Salad className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gradient">Nutriplan</h1>
-            <p className="text-[10px] uppercase tracking-widest font-semibold text-zinc-500">Premium Plan</p>
+            <h1 className="text-xl font-bold text-gray-900">Dietora</h1>
+            <p className="text-xs text-gray-500">Smart Nutrition</p>
           </div>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.end}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
+              `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                 isActive
-                  ? "bg-emerald-600/10 text-emerald-700 shadow-sm border border-emerald-600/20"
-                  : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                  ? "bg-green-50 text-green-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`
             }
           >
-            <item.icon className={`w-5 h-5 transition-transform group-hover:scale-110`} />
-            <span className="font-semibold text-sm">{item.label}</span>
+            <item.icon className="w-5 h-5" />
+            <span className="text-sm font-medium">{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* Bottom Section */}
-      <div className="p-6 mt-auto">
-        <div className="glass rounded-3xl p-4 border-zinc-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-tr from-emerald-100 to-teal-50 rounded-full flex items-center justify-center border border-emerald-200">
-              <span className="text-xs font-bold text-emerald-700">{initials}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-zinc-900 truncate">{userName}</p>
-              <p className="text-[10px] text-zinc-500 truncate">{userEmail}</p>
-            </div>
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+            <span className="text-sm font-medium text-green-600">{initials}</span>
           </div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-2 text-zinc-500 hover:text-red-600 hover:bg-red-50 rounded-xl px-2 h-9 transition-colors"
-            onClick={onLogout}
-            disabled={isLoggingOut}
-          >
-            <Shield className="w-4 h-4" />
-            <span className="text-xs font-bold">{isLoggingOut ? "Logging out..." : "Log Out"}</span>
-          </Button>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+            <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+          </div>
         </div>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2"
+          onClick={onLogout}
+          disabled={isLoggingOut}
+        >
+          <Shield className="w-4 h-4" />
+          <span className="text-sm font-medium">{isLoggingOut ? "Logging out..." : "Log Out"}</span>
+        </Button>
       </div>
     </div>
   );
@@ -159,9 +157,9 @@ export function RootLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-[#F3F4F6]">
+    <div className="flex h-screen bg-gray-50">
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-white border-r border-[#D1D5DB] hidden lg:flex flex-col">
+      <aside className="w-64 bg-white hidden lg:flex flex-col">
         <SidebarContent 
           userName={userName}
           userEmail={userEmail}
@@ -172,12 +170,12 @@ export function RootLayout() {
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#D1D5DB] z-50 flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white z-50 flex items-center justify-between px-4">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#16A34A] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
             <Salad className="w-5 h-5 text-white" />
           </div>
-          <span className="font-semibold text-[#111827]">Nutriplan</span>
+          <span className="font-semibold text-gray-900">Dietora</span>
         </Link>
 
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

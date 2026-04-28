@@ -1,74 +1,66 @@
-# Nutriplan - Personal Health & Nutrition Tracker
+# Nutriplan Monolithic
 
-Nutriplan is a comprehensive full-stack application designed to help users track their nutrition, plan meals, and manage their health journey. The platform features a dedicated landing page, an interactive user dashboard, and a powerful AI-driven backend.
+A monolithic version of the Nutriplan nutrition tracking application, combining frontend and backend into a single deployable unit.
 
-## 🚀 Architecture Overview
+## Project Structure
 
-The project is structured as a multi-service application:
-- **Root Launcher (Port 3000):** The main entry point that orchestrates the overall platform.
-- **Landing Page (Port 5173):** Located in `Nutriplanlandingpage-main`. Handles marketing and user authentication.
-- **Dashboard (Port 5174):** Located in `Nutriplan-main`. The core user experience for tracking and planning.
-- **Backend API (Port 4000):** Located in `backend`. Handles data persistence and AI processing.
-
----
-
-## 🛠️ Installation
-
-To get started, you need to install dependencies for all services. Run the following command in the project root:
-
-```bash
-# Install root dependencies
-npm install
-
-# Install service-specific dependencies
-cd backend && npm install
-cd ../Nutriplanlandingpage-main && npm install
-cd ../Nutriplan-main && npm install
+```
+nutriplan-monolithic/
+├── frontend/          # React/Vite frontend application
+├── backend/           # Express.js backend API
+├── shared/            # Shared utilities (if any)
+├── package.json       # Monolithic package.json with scripts
+└── README.md          # This file
 ```
 
----
+## Setup
 
-## 🚦 Running the Project
+1. Install all dependencies:
+   ```bash
+   npm run install:all
+   ```
 
-The easiest way to run the entire stack simultaneously is by using the provided startup scripts.
+2. Set up the database:
+   ```bash
+   cd backend
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
 
-### Windows (Recommended)
-Simply double-click the `start-all.bat` file in the root directory, or run it via terminal:
-```bash
-./start-all.bat
-```
-Alternatively, you can use the PowerShell version:
-```powershell
-./start-all.ps1
-```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-### Manual Execution
-If you prefer to run services individually, navigate to each directory and run:
-```bash
-npm run dev
-```
+This will start both the frontend (port 5173) and backend (port 4000) simultaneously.
 
----
+## Available Scripts
 
-## 🌐 Accessing the Apps
+- `npm run dev` - Start both frontend and backend in development mode
+- `npm run dev:frontend` - Start only the frontend
+- `npm run dev:backend` - Start only the backend
+- `npm run build` - Build both frontend and backend for production
+- `npm run start` - Start both frontend and backend in production mode
+- `npm run install:all` - Install dependencies for all workspaces
 
-Once all services are started, you can access them at:
+## Environment Variables
 
-- **Main Entry Point:** [http://localhost:3000](http://localhost:3000)
-- **Landing Page:** [http://localhost:5173](http://localhost:5173)
-- **User Dashboard:** [http://localhost:5174](http://localhost:5174)
-- **Backend API:** [http://localhost:4000](http://localhost:4000)
+Backend environment variables are in `backend/.env`:
 
----
+- `PORT` - Backend server port (default: 4000)
+- `DATABASE_URL` - Database connection string
+- `JWT_SECRET` - JWT signing secret
+- `CORS_ORIGIN` - Allowed CORS origins
 
-## 🔑 Environment Variables
+## Architecture
 
-Make sure to configure your `.env` files in the following locations:
-- **Backend:** `backend/.env` (Requires `DATABASE_URL` and `JWT_SECRET`)
-- **Frontend Apps:** Copy `.env.example` to `.env` if available.
+This monolithic version maintains the same API endpoints and frontend functionality as the original microservice architecture, but combines everything into a single application for simpler deployment and development.
 
----
+## Migration from Microservices
 
-## 📄 Documentation
-- [Project Challenges & Solutions](CHALLENGES.md)
-- [SDLC & Technical Report](SDLC_REPORT.md)
+This version was converted from a microservice architecture that included:
+- Separate frontend service
+- Separate backend API service
+- Next.js launcher application
+
+All functionality has been preserved while simplifying the architecture.

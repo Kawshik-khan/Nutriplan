@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card } from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useMealPlan, WeekDay, MealType } from "../contexts/meal-context";
@@ -76,129 +76,133 @@ export function Recommendations() {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-10">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-zinc-900 tracking-tight">AI <span className="text-gradient">Recommendations</span></h1>
-          <p className="text-zinc-500 font-medium mt-1">Smart suggestions tailored to your biology and goals.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Recommendations</h1>
+          <p className="text-gray-600 mt-1">Smart suggestions tailored to your goals</p>
         </div>
-        <div className="glass px-4 py-2 rounded-2xl flex items-center gap-2 border-emerald-100 shadow-sm">
-          <Sparkles className="w-5 h-5 text-emerald-600 animate-pulse" />
-          <span className="text-sm font-bold text-zinc-900">AI Analysis Active</span>
+        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+          <Sparkles className="w-4 h-4 text-green-600" />
+          <span className="text-sm font-medium text-green-700">AI Analysis Active</span>
         </div>
       </div>
 
       {/* Hero Banner */}
-      <Card className="premium-card bg-zinc-900 text-white border-0 overflow-hidden relative group">
-        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Sparkles className="w-32 h-32 text-white" />
-        </div>
-        <div className="relative z-10 space-y-4">
-          <Badge className="bg-emerald-600 text-white border-0 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Top Insight</Badge>
-          <h2 className="text-3xl font-bold">Boost your <span className="text-emerald-400">Metabolism</span></h2>
-          <p className="text-zinc-400 max-w-md text-sm leading-relaxed">
-            Increasing your protein intake by 15% this week could improve your muscle recovery by 22% based on your activity logs.
-          </p>
-          <Button className="rounded-2xl bg-white text-zinc-900 font-bold px-8 hover:bg-emerald-50 transition-colors">
-            Learn More
-          </Button>
-        </div>
+      <Card className="bg-gray-900 text-white border-0 overflow-hidden">
+        <CardContent className="p-6 relative">
+          <div className="absolute top-4 right-4">
+            <Sparkles className="w-8 h-8 text-green-400 opacity-50" />
+          </div>
+          <div className="space-y-3">
+            <Badge className="bg-green-500 text-white border-0 px-3 py-1 rounded-full text-xs font-medium">Top Insight</Badge>
+            <h2 className="text-2xl font-bold">Boost your <span className="text-green-400">Metabolism</span></h2>
+            <p className="text-gray-300 max-w-lg text-sm">
+              Increasing your protein intake by 15% this week could improve your muscle recovery by 22% based on your activity logs.
+            </p>
+            <Button className="bg-white text-gray-900 hover:bg-gray-100 font-medium">
+              Learn More
+            </Button>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Rec Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Recommendations Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {RECS.map((meal) => (
-          <div key={meal.id} className="premium-card group border-zinc-100 flex flex-col md:flex-row gap-6 p-0 overflow-hidden">
-            <div className="w-full md:w-48 h-48 overflow-hidden">
-              <img src={meal.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-            </div>
-            <div className="flex-1 p-6 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  {meal.tags.map(t => (
-                    <span key={t} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-zinc-100 text-zinc-500 rounded-lg">{t}</span>
-                  ))}
-                </div>
-                <h3 className="text-xl font-bold text-zinc-900 group-hover:text-emerald-600 transition-colors">{meal.name}</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <Flame className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-bold text-zinc-700">{meal.calories} <span className="text-[10px] text-zinc-400 font-medium">KCAL</span></span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Zap className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-bold text-zinc-700">{meal.protein}g <span className="text-[10px] text-zinc-400 font-medium">PRO</span></span>
-                  </div>
-                </div>
-                <div className="pt-2 flex items-start gap-2 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100">
-                  <Info className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-[11px] font-medium text-emerald-800 leading-relaxed italic">"{meal.reason}"</p>
-                </div>
+          <Card key={meal.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden group">
+            <div className="flex flex-col md:flex-row">
+              <div className="w-full md:w-48 h-48 overflow-hidden">
+                <img src={meal.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="" />
               </div>
-              <Dialog open={isDialogOpen && selectedMeal?.id === meal.id} onOpenChange={(open) => {
-                if (!open) setIsDialogOpen(false);
-              }}>
-                <DialogTrigger asChild>
-                  <Button 
-                    onClick={() => { setSelectedMeal(meal); setIsDialogOpen(true); }}
-                    className="mt-6 w-full rounded-2xl bg-zinc-900 text-white font-bold h-11 hover:bg-emerald-600 transition-all"
-                  >
-                    Add to Plan
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="rounded-3xl border-0 shadow-2xl p-0 overflow-hidden max-w-sm">
-                  <div className="p-6 bg-zinc-900 text-white">
-                    <DialogHeader>
-                      <DialogTitle className="text-2xl font-bold">Add to Plan</DialogTitle>
-                      <p className="text-zinc-400 text-sm">Targeting: {meal.name}</p>
-                    </DialogHeader>
+              <div className="flex-1 p-6 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {meal.tags.map(t => (
+                      <span key={t} className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-600 rounded">{t}</span>
+                    ))}
                   </div>
-                  <div className="p-6 space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Select Day</label>
-                        <div className="flex flex-wrap gap-2">
-                          {["Monday", "Wednesday", "Friday"].map(day => (
-                            <Button 
-                              key={day} 
-                              variant={planDay === day ? "default" : "outline"}
-                              onClick={() => setPlanDay(day as WeekDay)}
-                              className="rounded-xl h-9 text-xs font-bold"
-                            >
-                              {day}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Meal Type</label>
-                        <div className="flex flex-wrap gap-2">
-                          {["Breakfast", "Lunch", "Dinner", "Snack"].map(type => (
-                            <Button 
-                              key={type} 
-                              variant={planType === type ? "default" : "outline"}
-                              onClick={() => setPlanType(type as MealType)}
-                              className="rounded-xl h-9 text-xs font-bold"
-                            >
-                              {type}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">{meal.name}</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <Flame className="w-4 h-4 text-orange-500" />
+                      <span className="text-sm font-medium text-gray-700">{meal.calories} <span className="text-xs text-gray-500">kcal</span></span>
                     </div>
-                    <Button 
-                      onClick={handleAdd}
-                      className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
-                    >
-                      Confirm and Save
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Zap className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium text-gray-700">{meal.protein}g <span className="text-xs text-gray-500">protein</span></span>
+                    </div>
                   </div>
-                </DialogContent>
-              </Dialog>
+                  <div className="flex items-start gap-2 bg-green-50 p-3 rounded-lg border border-green-200">
+                    <Info className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-green-800 italic">"{meal.reason}"</p>
+                  </div>
+                </div>
+                <Dialog open={isDialogOpen && selectedMeal?.id === meal.id} onOpenChange={(open) => {
+                  if (!open) setIsDialogOpen(false);
+                }}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      onClick={() => { setSelectedMeal(meal); setIsDialogOpen(true); }}
+                      className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-medium"
+                    >
+                      Add to Plan
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-lg border-gray-200 p-0 max-w-md">
+                    <div className="p-6 bg-green-500 text-white">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-semibold">Add to Plan</DialogTitle>
+                        <p className="text-green-100 text-sm">Targeting: {meal.name}</p>
+                      </DialogHeader>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-gray-600">Select Day</label>
+                          <div className="flex flex-wrap gap-2">
+                            {["Monday", "Wednesday", "Friday"].map(day => (
+                              <Button 
+                                key={day} 
+                                variant={planDay === day ? "default" : "outline"}
+                                onClick={() => setPlanDay(day as WeekDay)}
+                                className={`h-8 text-xs font-medium ${planDay === day ? "bg-green-500 hover:bg-green-600" : "border-gray-200"}`}
+                              >
+                                {day}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-gray-600">Meal Type</label>
+                          <div className="flex flex-wrap gap-2">
+                            {["Breakfast", "Lunch", "Dinner", "Snack"].map(type => (
+                              <Button 
+                                key={type} 
+                                variant={planType === type ? "default" : "outline"}
+                                onClick={() => setPlanType(type as MealType)}
+                                className={`h-8 text-xs font-medium ${planType === type ? "bg-green-500 hover:bg-green-600" : "border-gray-200"}`}
+                              >
+                                {type}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={handleAdd}
+                        className="w-full bg-green-500 hover:bg-green-600 text-white font-medium"
+                      >
+                        Confirm and Save
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

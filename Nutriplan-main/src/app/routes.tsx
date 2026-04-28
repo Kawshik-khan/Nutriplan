@@ -2,11 +2,11 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { Suspense, lazy } from "react";
 import { RootLayout } from "./layouts/root-layout";
 import { Landing } from "./pages/landing";
+import Login from "./pages/login";
 import { AppErrorBoundary } from "./components/app-error-boundary";
 import { Skeleton } from "./components/ui/skeleton";
 
 // Lazy load pages for code splitting
-const Login = lazy(() => import("./pages/login").then((m) => ({ default: m.Login })));
 const Register = lazy(() => import("./pages/register").then((m) => ({ default: m.Register })));
 const Dashboard = lazy(() => import("./pages/dashboard").then((m) => ({ default: m.Dashboard })));
 const Onboarding = lazy(() => import("./pages/onboarding").then((m) => ({ default: m.Onboarding })));

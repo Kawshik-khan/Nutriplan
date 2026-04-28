@@ -1,193 +1,295 @@
 import { useState } from "react";
-import { Card } from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { useMealPlan, MealType, WeekDay } from "../contexts/meal-context";
+import { Skeleton } from "../components/ui/skeleton";
 import { 
   Plus, 
   Search, 
   Clock, 
   Zap, 
   Utensils, 
-  Check,
-  ChevronRight,
-  Flame
+  Camera,
+  X,
+  ChevronRight
 } from "lucide-react";
-import { Switch } from "../components/ui/switch";
 
 const FOOD_LIST = [
   { name: "Grilled Chicken Bowl", calories: 450, protein: 42, image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" },
   { name: "Oatmeal + Banana", calories: 320, protein: 8, image: "https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=400" },
   { name: "Avocado Toast", calories: 280, protein: 12, image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=400" },
   { name: "Protein Shake", calories: 220, protein: 30, image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=400" },
+  { name: "Greek Yogurt", calories: 150, protein: 15, image: "https://images.unsplash.com/photo-1618798513386-fedeb5c30d39?w=400" },
+  { name: "Brown Rice", calories: 216, protein: 5, image: "https://images.unsplash.com/photo-1536254263969-2a6da6c3ac53?w=400" },
+];
+
+const TODAY_MEALS = [
+  {
+    type: "Breakfast",
+    meals: [
+      { name: "Oatmeal with Berries", calories: 320, protein: 8, time: "8:30 AM" },
+      { name: "Greek Yogurt", calories: 150, protein: 15, time: "8:45 AM" }
+    ]
+  },
+  {
+    type: "Lunch", 
+    meals: [
+      { name: "Grilled Chicken Salad", calories: 450, protein: 42, time: "12:30 PM" },
+      { name: "Apple", calories: 95, protein: 0, time: "1:00 PM" }
+    ]
+  },
+  {
+    type: "Snack",
+    meals: [
+      { name: "Protein Shake", calories: 220, protein: 30, time: "3:30 PM" }
+    ]
+  },
+  {
+    type: "Dinner",
+    meals: []
+  }
 ];
 
 export function FoodLog() {
-  const { addMeal } = useMealPlan();
+  const { addMeal, weeklyPlan } = useMealPlan();
   const [searchQuery, setSearchQuery] = useState("");
-  const [syncToPlanner, setSyncToPlanner] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [activeMealType, setActiveMealType] = useState<MealType | null>(null);
+  const [isAddFoodOpen, setIsAddFoodOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const today = new Date().toLocaleDateString("en-US", { weekday: "long" }) as WeekDay;
 
   const handleAddFood = (food: typeof FOOD_LIST[0]) => {
-    if (activeMealType) {
-      if (syncToPlanner) {
-        addMeal(today, activeMealType, { ...food, id: Math.random().toString(36).substr(2, 9) });
-      }
-      setIsDialogOpen(false);
-      setActiveMealType(null);
-    }
+    // Add to today's log logic here
+    setIsAddFoodOpen(false);
   };
 
-  const filteredFoods = FOOD_LIST.filter(f => 
-    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+  // Mock foodLogs data - in real app this would come from API/hook
+  // const { data: foodLogs, isLoading } = useFoodLogs();
+  const foodLogs: any = null; // Simulating undefined/null state that causes the error
+  
+  // Normalize foodLogs to safe array with all possible data shapes
+  const safeFoodLogs = 
+    Array.isArray(foodLogs)
+      ? foodLogs
+      : Array.isArray((foodLogs as any)?.logs)
+      ? (foodLogs as any).logs
+      : Array.isArray((foodLogs as any)?.data)
+      ? (foodLogs as any).data
+      : [];
+
+  // Debug log to check actual response shape
+  console.log('foodLogs shape:', foodLogs);
+  console.log('safeFoodLogs:', safeFoodLogs);
+
+  // Add safety check for FOOD_LIST
+  const safeFoodList = Array.isArray(FOOD_LIST) ? FOOD_LIST : [];
+  const filteredFoods = safeFoodList.filter(f => 
+    f && f.name && f.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Get today's meals from the meal plan with safety checks
+  const getTodayMeals = () => {
+    const safeWeeklyPlan = weeklyPlan || {};
+    const todayMeals = safeWeeklyPlan[today] || {};
+    
+    return [
+      { type: "Breakfast", meals: todayMeals.Breakfast || [] },
+      { type: "Lunch", meals: todayMeals.Lunch || [] },
+      { type: "Snack", meals: todayMeals.Snack || [] },
+      { type: "Dinner", meals: todayMeals.Dinner || [] }
+    ];
+  };
+
+  const todayMealsData = getTodayMeals();
+  const allMeals = todayMealsData.flatMap(group => group.meals);
+  
+  const totalCalories = allMeals.reduce((sum, meal) => sum + (meal?.calories || 0), 0);
+  const totalProtein = allMeals.reduce((sum, meal) => sum + (meal?.protein || 0), 0);
+  const totalMeals = allMeals.length;
+
+  // Loading protection
+  if (isLoading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-6">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <div className="grid grid-cols-3 gap-4">
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-10">
-      {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-zinc-900 tracking-tight">Daily <span className="text-gradient">Log</span></h1>
-        <p className="text-zinc-500 font-medium mt-1">Track your consumption and stay on target.</p>
-      </div>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Header */}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Food Log</h1>
+            <p className="text-gray-600 mt-1">Track your daily food intake</p>
+          </div>
 
-      {/* Summary Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="premium-card bg-zinc-900 text-white border-0">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-              <Flame className="w-6 h-6 text-orange-400" />
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Calories</p>
-              <p className="text-2xl font-bold">1,240 <span className="text-xs text-zinc-500">/ 2,000</span></p>
-            </div>
-          </div>
-        </Card>
-        <Card className="premium-card border-zinc-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
-              <Zap className="w-6 h-6 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Protein</p>
-              <p className="text-2xl font-bold text-zinc-900">85g <span className="text-xs text-zinc-500">/ 150g</span></p>
-            </div>
-          </div>
-        </Card>
-        <Card className="premium-card border-zinc-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-              <Clock className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Logged</p>
-              <p className="text-2xl font-bold text-zinc-900">2 <span className="text-xs text-zinc-500">Meals</span></p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Quick Add Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {(["Breakfast", "Lunch", "Dinner", "Snack"] as MealType[]).map((type) => (
-          <Dialog key={type} open={isDialogOpen && activeMealType === type} onOpenChange={(open) => {
-            if (!open) setIsDialogOpen(false);
-          }}>
-            <DialogTrigger asChild>
-              <Button 
-                onClick={() => { setActiveMealType(type); setIsDialogOpen(true); }}
-                className="h-28 rounded-3xl bg-white border-2 border-dashed border-zinc-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all flex flex-col items-center justify-center gap-2 group shadow-none text-zinc-400 hover:text-emerald-600"
-              >
-                <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                  <Plus className="w-5 h-5 transition-transform group-hover:scale-110" />
-                </div>
-                <span className="text-xs font-bold uppercase tracking-widest">{type}</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-3xl border-0 shadow-2xl p-0 overflow-hidden max-w-md">
-              <div className="p-6 bg-emerald-600 text-white">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold">Quick Add {type}</DialogTitle>
-                  <p className="text-emerald-100 text-sm">Add food to your daily log</p>
-                </DialogHeader>
-              </div>
-              <div className="p-6 space-y-6">
-                <div className="flex items-center justify-between p-4 glass rounded-2xl border-emerald-100">
-                  <div className="flex items-center gap-3">
-                    <Check className={`w-5 h-5 ${syncToPlanner ? "text-emerald-600" : "text-zinc-300"}`} />
-                    <span className="text-sm font-bold text-zinc-700">Also add to meal planner</span>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-orange-600" />
                   </div>
-                  <Switch 
-                    checked={syncToPlanner} 
-                    onCheckedChange={setSyncToPlanner}
-                    className="data-[state=checked]:bg-emerald-600"
-                  />
+                  <div>
+                    <p className="text-sm text-gray-600">Calories</p>
+                    <p className="text-xl font-bold text-gray-900">{totalCalories.toLocaleString()}</p>
+                  </div>
                 </div>
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                  <Input 
-                    placeholder="Search foods..." 
-                    className="pl-12 h-12 rounded-2xl bg-zinc-50 border-zinc-100 focus:ring-emerald-500/20"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Protein</p>
+                    <p className="text-xl font-bold text-gray-900">{totalProtein}g</p>
+                  </div>
                 </div>
-                <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-                  {filteredFoods.map((food, i) => (
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Meals</p>
+                    <p className="text-xl font-bold text-gray-900">{totalMeals}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Today's Meals */}
+          <div className="space-y-6">
+            <h2 className="text-lg font-semibold text-gray-900">Today's meals</h2>
+            
+            {todayMealsData.map((mealGroup) => (
+              <div key={mealGroup.type} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Utensils className="w-4 h-4 text-gray-400" />
+                  <h3 className="font-medium text-gray-900">{mealGroup.type}</h3>
+                  <span className="text-sm text-gray-500">
+                    ({mealGroup.meals.reduce((sum, meal) => sum + (meal?.calories || 0), 0)} cal)
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  {mealGroup.meals.map((meal, index) => (
+                    <Card key={meal?.id || index} className="bg-white border border-gray-200 rounded-lg">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Utensils className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{meal?.name || 'Unknown meal'}</h4>
+                              <p className="text-sm text-gray-500">Logged today</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-green-600">{meal?.calories || 0}</p>
+                            <p className="text-xs text-gray-500">calories</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  {mealGroup.meals.length === 0 && (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      No {mealGroup.type.toLowerCase()} logged yet
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Add Food Panel */}
+        <div className="lg:col-span-1">
+          <Card className="bg-white border border-gray-200 rounded-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Add Food</h2>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setIsAddFoodOpen(false)}
+                  className="h-8 w-8"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Search */}
+              <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input 
+                  placeholder="Search foods..." 
+                  className="pl-10 h-10 border-gray-200"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 mb-6">
+                <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Scan Barcode
+                </Button>
+                <Button variant="outline" className="w-full border-gray-200">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Custom Food
+                </Button>
+              </div>
+
+              {/* Recent Foods */}
+              <div className="space-y-3">
+                <h3 className="font-medium text-gray-900">Recent foods</h3>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {filteredFoods.map((food, index) => (
                     <div 
-                      key={i} 
+                      key={index}
                       onClick={() => handleAddFood(food)}
-                      className="flex items-center gap-4 p-3 rounded-2xl border border-zinc-100 hover:border-emerald-200 hover:bg-emerald-50 transition-all cursor-pointer group"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-green-500 hover:bg-green-50 cursor-pointer transition-colors"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-zinc-100 overflow-hidden shadow-inner">
-                        <img src={food.image} className="w-full h-full object-cover" alt="" />
-                      </div>
+                      <img src={food.image} className="w-12 h-12 rounded-lg object-cover" alt="" />
                       <div className="flex-1">
-                        <p className="font-bold text-zinc-900">{food.name}</p>
-                        <p className="text-[10px] font-bold text-zinc-400">{food.calories} kcal • {food.protein}g protein</p>
+                        <p className="font-medium text-gray-900 text-sm">{food.name}</p>
+                        <p className="text-xs text-gray-500">{food.calories} cal • {food.protein}g protein</p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-zinc-200 group-hover:text-emerald-500 transition-all group-hover:translate-x-1" />
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
                     </div>
                   ))}
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        ))}
-      </div>
-
-      {/* Log Feed */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-zinc-900">Today&apos;s Feed</h2>
-        <div className="space-y-4">
-          {[
-            { type: "Breakfast", time: "08:30 AM", name: "Greek Yogurt + Berries", cal: 280 },
-            { type: "Lunch", time: "01:15 PM", name: "Grilled Salmon with Asparagus", cal: 450 }
-          ].map((log, i) => (
-            <div key={i} className="premium-card flex items-center justify-between group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-zinc-50 rounded-2xl flex items-center justify-center border border-zinc-100 shadow-inner group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
-                  <Utensils className="w-6 h-6 text-zinc-400 group-hover:text-emerald-600 transition-colors" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{log.type}</span>
-                    <span className="text-[10px] font-bold text-zinc-300">•</span>
-                    <span className="text-[10px] font-bold text-zinc-400">{log.time}</span>
-                  </div>
-                  <h3 className="font-bold text-zinc-900 mt-0.5">{log.name}</h3>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-emerald-600">{log.cal}</p>
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Calories</p>
-              </div>
-            </div>
-          ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

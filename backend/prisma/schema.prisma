@@ -24,6 +24,8 @@ model User {
   waterLogs      WaterLog[]
   weightLogs     WeightLog[]
   nutritionStats NutritionStat[]
+  plannerEntries PlannerEntry[]
+  foodLogs       FoodLog[]
 }
 
 model Meal {
@@ -78,4 +80,59 @@ model WeightLog {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, loggedAt])
+}
+
+model FoodItem {
+  id        Int      @id @default(autoincrement())
+  name      String
+  image     String?
+  calories  Int
+  proteinG  Int
+  carbsG    Int
+  fatG      Int
+  category  String?  // Breakfast, Lunch, Dinner, Snack
+  tags      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  plannerEntries PlannerEntry[]
+  foodLogs       FoodLog[]
+}
+
+model PlannerEntry {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  foodItemId Int
+  date      DateTime // Full date for planning
+  mealType  String   // Breakfast, Lunch, Dinner, Snack
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItem FoodItem @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, mealType, foodItemId])
+  @@index([userId, date])
+}
+
+model FoodLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  foodItemId Int?     // Reference to food items table
+  foodName   String?  // For custom foods not in food items table
+  date       DateTime // Full date for logging
+  mealType   String   // Breakfast, Lunch, Dinner, Snack
+  quantity   Int      @default(1)
+  calories   Int
+  proteinG   Int
+  carbsG     Int
+  fatG       Int
+  createdAt  DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodItem FoodItem? @relation(fields: [foodItemId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
 }

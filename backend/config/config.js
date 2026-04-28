@@ -12,7 +12,8 @@ for (const key of requiredEnv) {
 export const config = {
   port: Number(process.env.PORT ?? 4000),
   jwtSecret: process.env.JWT_SECRET,
-  corsOrigins: (process.env.CORS_ORIGIN ?? "http://localhost:5173,http://localhost:5174")
+  // In monolithic setup, allow same-origin requests and common development origins
+  corsOrigins: (process.env.CORS_ORIGIN ?? "http://localhost:3000,http://localhost:5173,http://localhost:5174")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),

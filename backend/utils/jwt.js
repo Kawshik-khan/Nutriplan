@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { config } from "../config.js";
+import { config } from "../config/config.js";
 
 export function signAuthToken(payload) {
   return jwt.sign(payload, config.jwtSecret, { expiresIn: "7d" });

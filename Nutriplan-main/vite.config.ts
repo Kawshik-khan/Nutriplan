@@ -36,13 +36,7 @@ export default defineConfig({
     // Chunk size warning limit
     chunkSizeWarningLimit: 500,
     // Minimize and optimize
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild',
     // Generate source maps for production
     sourcemap: true,
   },
