@@ -47,3 +47,6 @@ temp/
 tmp/
 .vercel
 .cache/
+#
+files/
+CLEANUP_SUMMARY.md
